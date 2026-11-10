@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Brute Force IP Protection System</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg,#141e30,#243b55);
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
+
+.container {
+    background: white;
+    color: black;
+    width: 340px;
+    max-width: 90%;
+    margin: 25px auto;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px #0005;
+}
+
+input {
+    width: 90%;
+    padding: 12px;
+    margin: 8px 0;
+    border: 1px solid #aaa;
+    border-radius: 5px;
+}
+
+button {
+    width: 98%;
+    padding: 12px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 5px;
+    background: #1769aa;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #084477;
+}
+
+.hidden {
+    display: none;
+}
+
+.danger {
+    color: red;
+    font-weight: bold;
+}
+
+.success {
+    color: green;
+    font-weight: bold;
+}
+
+.note {
+    font-size: 12px;
+    color: #555;
+}
+
+hr {
+    margin: 20px 0;
+}
+</style>
+</head>
+
+<body>
+
+<h2>BRUTE FORCE ATTACK PROTECTION</h2>
+<p>IP Based Login Security System</p>
+
+<!-- REGISTRATION -->
+
+<div class="container" id="registerBox">
+
+<h3>Create Account</h3>
+
+<input id="regUser" placeholder="Create User ID">
+
+<input id="regPass" type="password"
+placeholder="Create Password">
+
+<button onclick="register()">Register</button>
+
+<p>Already registered?</p>
+
+<button onclick="showLogin()">Go to Login</button>
+
+</div>
+
+
+<!-- LOGIN -->
+
+<div class="container hidden" id="loginBox">
+
+<h3>User Login</h3>
+
+<input id="username" placeholder="Enter User ID">
+
+<input id="password" type="password"
+placeholder="Enter Password">
+
+<p><b>Device IP Address:</b></p>
+
+<p id="deviceIP"></p>
+
+<button onclick="login()">Login</button>
+
+<p id="attempts">Wrong Attempts: 0 / 5</p>
+
+<p id="message"></p>
+
+<button onclick="showRegister()">Create Account</button>
+
+</div>
+
+
+<!-- USER DASHBOARD -->
+
+<div class="container hidden" id="homeBox">
+
+<h2>USER DASHBOARD</h2>
+
+<h3 id="welcome" class="success"></h3>
+
+<hr>
+
+<h3>My Account Details</h3>
+
+<p>User ID: <b id="dashUser"></b></p>
+
+<p>Device IP: <b id="dashIP"></b></p>
+
+<p>Login Status:
+<span class="success">Active</span>
+</p>
+
+<p>Security Status:
+<span class="success">Protected</span>
+</p>
+
+<hr>
+
+<h3>Dashboard Menu</h3>
+
+<button onclick="showProfile()">My Profile</button>
+
+<button onclick="showSecurity()">Security Information</button>
+
+<p id="dashboardMessage"></p>
+
+<button onclick="logout()">Logout</button>
+
+</div>
+
+
+<!-- IP SECURITY STATUS -->
+
+<div class="container" id="statusBox">
+
+<h3>IP Security Status</h3>
+
+<p id="status">No blocked IP addresses.</p>
+
+<button onclick="showStatus()">Refresh Status</button>
+
+</div>
+
+
+<script>
+
+// AUTOMATIC SIMULATED IP GENERATION
+
+let simulatedIP = localStorage.getItem("simulatedIP");
+
+if (!simulatedIP) {
+
+    simulatedIP = "192.168.1." +
+        (Math.floor(Math.random() * 200) + 20);
+
+    localStorage.setItem("simulatedIP", simulatedIP);
+
+}
+
+// DISPLAY DEVICE IP
+
+document.getElementById("deviceIP").innerText =
+    simulatedIP;
+
+
+// LOAD SAVED DATA
+
+let users = JSON.parse(
+    localStorage.getItem("users") || "{}"
+);
+
+let ipAttempts = JSON.parse(
+    localStorage.getItem("ipAttempts") || "{}"
+);
+
+let blockedIPs = JSON.parse(
+    localStorage.getItem("blockedIPs") || "{}"
+);
+
+const BLOCK_TIME = 24 * 60 * 60 * 1000;
+const MAX_ATTEMPTS = 5;
+
+
+// SAVE DATA
+
+function saveData() {
+
+    localStorage.setItem("users",
+        JSON.stringify(users));
+
+    localStorage.setItem("ipAttempts",
+        JSON.stringify(ipAttempts));
+
+    localStorage.setItem("blockedIPs",
+        JSON.stringify(blockedIPs));
+
+}
+
+
+// SHOW REGISTER
+
+function showRegister() {
+
+    registerBox.classList.remove("hidden");
+    loginBox.classList.add("hidden");
+    homeBox.classList.add("hidden");
+
+    message.innerText = "";
+
+}
+
+
+// SHOW LOGIN
+
+function showLogin() {
+
+    registerBox.classList.add("hidden");
+    loginBox.classList.remove("hidden");
+    homeBox.classList.add("hidden");
+
+    message.innerText = "";
+
+    attemptsText();
+
+}
+
+
+// REGISTER USER
+
+function register() {
+
+    let user = regUser.value.trim();
+    let pass = regPass.value;
+
+    if (!user || !pass) {
+
+        alert("Enter User ID and Password");
+        return;
+
+    }
+
+    if (users[user]) {
+
+        alert("User already exists!");
+        return;
+
+    }
+
+    if (pass.length < 6) {
+
+        alert("Password must contain at least 6 characters");
+        return;
+
+    }
+
+    users[user] = pass;
+
+    saveData();
+
+    alert("Account created successfully!");
+
+    regUser.value = "";
+    regPass.value = "";
+
+    showLogin();
+
+}
+
+
+// UPDATE ATTEMPTS
+
+function attemptsText() {
+
+    document.getElementById("attempts").innerText =
+        "Wrong Attempts: " +
+        (ipAttempts[simulatedIP] || 0) + " / 5";
+
+}
+
+
+// LOGIN FUNCTION
+
+function login() {
+
+    let user = username.value.trim();
+    let pass = password.value;
+
+    // AUTOMATIC IP IDENTIFICATION
+    let ip = simulatedIP;
+
+    if (!user || !pass) {
+
+        message.innerText = "Enter User ID and Password!";
+        return;
+
+    }
+
+    let now = Date.now();
+
+
+    // CHECK IP BLOCK
+
+    if (blockedIPs[ip] && now < blockedIPs[ip]) {
+
+        let remaining = blockedIPs[ip] - now;
+
+        let hours = Math.floor(remaining / 3600000);
+
+        let minutes = Math.ceil(
+            (remaining % 3600000) / 60000
+        );
+
+        message.innerText =
+            "ACCESS DENIED! IP BLOCKED.\n" +
+            "IP: " + ip +
+            "\nTry again after " +
+            hours + " hours " + minutes + " minutes.";
+
+        message.className = "danger";
+
+        attemptsText();
+
+        return;
+
+    }
+
+
+    // REMOVE EXPIRED BLOCK
+
+    if (blockedIPs[ip] && now >= blockedIPs[ip]) {
+
+        delete blockedIPs[ip];
+        ipAttempts[ip] = 0;
+
+    }
+
+
+    // CHECK USERNAME AND PASSWORD
+
+    if (!users[user] || users[user] !== pass) {
+
+        ipAttempts[ip] = (ipAttempts[ip] || 0) + 1;
+
+        if (ipAttempts[ip] >= MAX_ATTEMPTS) {
+
+            blockedIPs[ip] = Date.now() + BLOCK_TIME;
+
+            message.innerText =
+                "BRUTE FORCE ATTACK DETECTED!\n" +
+                "IP ADDRESS: " + ip +
+                "\nTHIS IP HAS BEEN BLOCKED FOR 24 HOURS!";
+
+            message.className = "danger";
+
+        } else {
+
+            message.innerText =
+                "Incorrect User ID or Password!\n" +
+                "Attempts: " + ipAttempts[ip] + " / 5";
+
+            message.className = "danger";
+
+        }
+
+        saveData();
+
+        attemptsText();
+        showStatus();
+
+        return;
+
+    }
+
+
+    // SUCCESSFUL LOGIN
+
+    ipAttempts[ip] = 0;
+
+    saveData();
+
+    loginBox.classList.add("hidden");
+    registerBox.classList.add("hidden");
+    homeBox.classList.remove("hidden");
+
+    welcome.innerText = "Welcome, " + user + "!";
+
+    document.getElementById("dashUser").innerText = user;
+
+    document.getElementById("dashIP").innerText = ip;
+
+    document.getElementById("dashboardMessage").innerText = "";
+
+    password.value = "";
+
+    showStatus();
+
+}
+
+
+// MY PROFILE
+
+function showProfile() {
+
+    document.getElementById("dashboardMessage").innerText =
+        "Your User ID: " +
+        document.getElementById("dashUser").innerText;
+
+}
+
+
+// SECURITY INFORMATION
+
+function showSecurity() {
+
+    document.getElementById("dashboardMessage").innerText =
+        "Security: Maximum 5 failed login attempts. " +
+        "IP is blocked for 24 hours after 5 failures.";
+
+}
+
+
+// LOGOUT
+
+function logout() {
+
+    homeBox.classList.add("hidden");
+    loginBox.classList.remove("hidden");
+
+    username.value = "";
+    password.value = "";
+
+    message.innerText = "";
+
+    dashboardMessage.innerText = "";
+
+    attemptsText();
+
+}
+
+
+// SHOW BLOCKED IP STATUS
+
+function showStatus() {
+
+    let now = Date.now();
+
+    let result = "";
+
+    for (let ip in blockedIPs) {
+
+        if (now >= blockedIPs[ip]) {
+
+            delete blockedIPs[ip];
+
+            ipAttempts[ip] = 0;
+
+            continue;
+
+        }
+
+        let remaining = blockedIPs[ip] - now;
+
+        let hours = Math.floor(remaining / 3600000);
+
+        let minutes = Math.ceil(
+            (remaining % 3600000) / 60000
+        );
+
+        result +=
+            "<p class='danger'>" +
+            "Blocked IP: " + ip +
+            "<br>Remaining: " +
+            hours + "h " + minutes + "m" +
+            "</p>";
+
+    }
+
+    if (result === "") {
+
+        status.innerText = "No blocked IP addresses.";
+
+    } else {
+
+        status.innerHTML = result;
+
+    }
+
+    saveData();
+
+}
+
+
+// START PAGE
+
+showRegister();
+showStatus();
+
+</script>
+
+</body>
+</html>
