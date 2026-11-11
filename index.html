@@ -1,533 +1,111 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Brute Force IP Protection System</title>
-
-<style>
-body {
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg,#141e30,#243b55);
-    color: white;
-    text-align: center;
-    padding: 20px;
-}
-
-.container {
-    background: white;
-    color: black;
-    width: 340px;
-    max-width: 90%;
-    margin: 25px auto;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 5px 20px #0005;
-}
-
-input {
-    width: 90%;
-    padding: 12px;
-    margin: 8px 0;
-    border: 1px solid #aaa;
-    border-radius: 5px;
-}
-
-button {
-    width: 98%;
-    padding: 12px;
-    margin-top: 10px;
-    border: none;
-    border-radius: 5px;
-    background: #1769aa;
-    color: white;
-    cursor: pointer;
-}
-
-button:hover {
-    background: #084477;
-}
-
-.hidden {
-    display: none;
-}
-
-.danger {
-    color: red;
-    font-weight: bold;
-}
-
-.success {
-    color: green;
-    font-weight: bold;
-}
-
-.note {
-    font-size: 12px;
-    color: #555;
-}
-
-hr {
-    margin: 20px 0;
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Brute Force Attack Protection System">
+  <title>Brute Force IP Protection</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
 </head>
-
 <body>
-
-<h2>BRUTE FORCE ATTACK PROTECTION</h2>
-<p>IP Based Login Security System</p>
-
-<!-- REGISTRATION -->
-
-<div class="container" id="registerBox">
-
-<h3>Create Account</h3>
-
-<input id="regUser" placeholder="Create User ID">
-
-<input id="regPass" type="password"
-placeholder="Create Password">
-
-<button onclick="register()">Register</button>
-
-<p>Already registered?</p>
-
-<button onclick="showLogin()">Go to Login</button>
-
-</div>
-
-
-<!-- LOGIN -->
-
-<div class="container hidden" id="loginBox">
-
-<h3>User Login</h3>
-
-<input id="username" placeholder="Enter User ID">
-
-<input id="password" type="password"
-placeholder="Enter Password">
-
-<p><b>Device IP Address:</b></p>
-
-<p id="deviceIP"></p>
-
-<button onclick="login()">Login</button>
-
-<p id="attempts">Wrong Attempts: 0 / 5</p>
-
-<p id="message"></p>
-
-<button onclick="showRegister()">Create Account</button>
-
-</div>
-
-
-<!-- USER DASHBOARD -->
-
-<div class="container hidden" id="homeBox">
-
-<h2>USER DASHBOARD</h2>
-
-<h3 id="welcome" class="success"></h3>
-
-<hr>
-
-<h3>My Account Details</h3>
-
-<p>User ID: <b id="dashUser"></b></p>
-
-<p>Device IP: <b id="dashIP"></b></p>
-
-<p>Login Status:
-<span class="success">Active</span>
-</p>
-
-<p>Security Status:
-<span class="success">Protected</span>
-</p>
-
-<hr>
-
-<h3>Dashboard Menu</h3>
-
-<button onclick="showProfile()">My Profile</button>
-
-<button onclick="showSecurity()">Security Information</button>
-
-<p id="dashboardMessage"></p>
-
-<button onclick="logout()">Logout</button>
-
-</div>
-
-
-<!-- IP SECURITY STATUS -->
-
-<div class="container" id="statusBox">
-
-<h3>IP Security Status</h3>
-
-<p id="status">No blocked IP addresses.</p>
-
-<button onclick="showStatus()">Refresh Status</button>
-
-</div>
-
-
-<script>
-
-// AUTOMATIC SIMULATED IP GENERATION
-
-let simulatedIP = localStorage.getItem("simulatedIP");
-
-if (!simulatedIP) {
-
-    simulatedIP = "192.168.1." +
-        (Math.floor(Math.random() * 200) + 20);
-
-    localStorage.setItem("simulatedIP", simulatedIP);
-
-}
-
-// DISPLAY DEVICE IP
-
-document.getElementById("deviceIP").innerText =
-    simulatedIP;
-
-
-// LOAD SAVED DATA
-
-let users = JSON.parse(
-    localStorage.getItem("users") || "{}"
-);
-
-let ipAttempts = JSON.parse(
-    localStorage.getItem("ipAttempts") || "{}"
-);
-
-let blockedIPs = JSON.parse(
-    localStorage.getItem("blockedIPs") || "{}"
-);
-
-const BLOCK_TIME = 24 * 60 * 60 * 1000;
-const MAX_ATTEMPTS = 5;
-
-
-// SAVE DATA
-
-function saveData() {
-
-    localStorage.setItem("users",
-        JSON.stringify(users));
-
-    localStorage.setItem("ipAttempts",
-        JSON.stringify(ipAttempts));
-
-    localStorage.setItem("blockedIPs",
-        JSON.stringify(blockedIPs));
-
-}
-
-
-// SHOW REGISTER
-
-function showRegister() {
-
-    registerBox.classList.remove("hidden");
-    loginBox.classList.add("hidden");
-    homeBox.classList.add("hidden");
-
-    message.innerText = "";
-
-}
-
-
-// SHOW LOGIN
-
-function showLogin() {
-
-    registerBox.classList.add("hidden");
-    loginBox.classList.remove("hidden");
-    homeBox.classList.add("hidden");
-
-    message.innerText = "";
-
-    attemptsText();
-
-}
-
-
-// REGISTER USER
-
-function register() {
-
-    let user = regUser.value.trim();
-    let pass = regPass.value;
-
-    if (!user || !pass) {
-
-        alert("Enter User ID and Password");
-        return;
-
-    }
-
-    if (users[user]) {
-
-        alert("User already exists!");
-        return;
-
-    }
-
-    if (pass.length < 6) {
-
-        alert("Password must contain at least 6 characters");
-        return;
-
-    }
-
-    users[user] = pass;
-
-    saveData();
-
-    alert("Account created successfully!");
-
-    regUser.value = "";
-    regPass.value = "";
-
-    showLogin();
-
-}
-
-
-// UPDATE ATTEMPTS
-
-function attemptsText() {
-
-    document.getElementById("attempts").innerText =
-        "Wrong Attempts: " +
-        (ipAttempts[simulatedIP] || 0) + " / 5";
-
-}
-
-
-// LOGIN FUNCTION
-
-function login() {
-
-    let user = username.value.trim();
-    let pass = password.value;
-
-    // AUTOMATIC IP IDENTIFICATION
-    let ip = simulatedIP;
-
-    if (!user || !pass) {
-
-        message.innerText = "Enter User ID and Password!";
-        return;
-
-    }
-
-    let now = Date.now();
-
-
-    // CHECK IP BLOCK
-
-    if (blockedIPs[ip] && now < blockedIPs[ip]) {
-
-        let remaining = blockedIPs[ip] - now;
-
-        let hours = Math.floor(remaining / 3600000);
-
-        let minutes = Math.ceil(
-            (remaining % 3600000) / 60000
-        );
-
-        message.innerText =
-            "ACCESS DENIED! IP BLOCKED.\n" +
-            "IP: " + ip +
-            "\nTry again after " +
-            hours + " hours " + minutes + " minutes.";
-
-        message.className = "danger";
-
-        attemptsText();
-
-        return;
-
-    }
-
-
-    // REMOVE EXPIRED BLOCK
-
-    if (blockedIPs[ip] && now >= blockedIPs[ip]) {
-
-        delete blockedIPs[ip];
-        ipAttempts[ip] = 0;
-
-    }
-
-
-    // CHECK USERNAME AND PASSWORD
-
-    if (!users[user] || users[user] !== pass) {
-
-        ipAttempts[ip] = (ipAttempts[ip] || 0) + 1;
-
-        if (ipAttempts[ip] >= MAX_ATTEMPTS) {
-
-            blockedIPs[ip] = Date.now() + BLOCK_TIME;
-
-            message.innerText =
-                "BRUTE FORCE ATTACK DETECTED!\n" +
-                "IP ADDRESS: " + ip +
-                "\nTHIS IP HAS BEEN BLOCKED FOR 24 HOURS!";
-
-            message.className = "danger";
-
-        } else {
-
-            message.innerText =
-                "Incorrect User ID or Password!\n" +
-                "Attempts: " + ipAttempts[ip] + " / 5";
-
-            message.className = "danger";
-
-        }
-
-        saveData();
-
-        attemptsText();
-        showStatus();
-
-        return;
-
-    }
-
-
-    // SUCCESSFUL LOGIN
-
-    ipAttempts[ip] = 0;
-
-    saveData();
-
-    loginBox.classList.add("hidden");
-    registerBox.classList.add("hidden");
-    homeBox.classList.remove("hidden");
-
-    welcome.innerText = "Welcome, " + user + "!";
-
-    document.getElementById("dashUser").innerText = user;
-
-    document.getElementById("dashIP").innerText = ip;
-
-    document.getElementById("dashboardMessage").innerText = "";
-
-    password.value = "";
-
-    showStatus();
-
-}
-
-
-// MY PROFILE
-
-function showProfile() {
-
-    document.getElementById("dashboardMessage").innerText =
-        "Your User ID: " +
-        document.getElementById("dashUser").innerText;
-
-}
-
-
-// SECURITY INFORMATION
-
-function showSecurity() {
-
-    document.getElementById("dashboardMessage").innerText =
-        "Security: Maximum 5 failed login attempts. " +
-        "IP is blocked for 24 hours after 5 failures.";
-
-}
-
-
-// LOGOUT
-
-function logout() {
-
-    homeBox.classList.add("hidden");
-    loginBox.classList.remove("hidden");
-
-    username.value = "";
-    password.value = "";
-
-    message.innerText = "";
-
-    dashboardMessage.innerText = "";
-
-    attemptsText();
-
-}
-
-
-// SHOW BLOCKED IP STATUS
-
-function showStatus() {
-
-    let now = Date.now();
-
-    let result = "";
-
-    for (let ip in blockedIPs) {
-
-        if (now >= blockedIPs[ip]) {
-
-            delete blockedIPs[ip];
-
-            ipAttempts[ip] = 0;
-
-            continue;
-
-        }
-
-        let remaining = blockedIPs[ip] - now;
-
-        let hours = Math.floor(remaining / 3600000);
-
-        let minutes = Math.ceil(
-            (remaining % 3600000) / 60000
-        );
-
-        result +=
-            "<p class='danger'>" +
-            "Blocked IP: " + ip +
-            "<br>Remaining: " +
-            hours + "h " + minutes + "m" +
-            "</p>";
-
-    }
-
-    if (result === "") {
-
-        status.innerText = "No blocked IP addresses.";
-
-    } else {
-
-        status.innerHTML = result;
-
-    }
-
-    saveData();
-
-}
-
-
-// START PAGE
-
-showRegister();
-showStatus();
-
-</script>
-
+  <header class="topbar">
+    <a class="brand" href="/"><span class="brand-icon">盾</span><span>SecureGate</span></a>
+    <span class="top-label">BRUTE FORCE PROTECTION</span>
+    <span id="connection" class="connection"><i></i> Server connected</span>
+  </header>
+
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow"><span class="pulse"></span> REAL-TIME LOGIN SECURITY</div>
+      <h1>Protect your account.<br><span>Stop brute-force attacks.</span></h1>
+      <p>A server-backed login protection system with password hashing, session authentication and automatic IP blocking.</p>
+      <div class="hero-stats">
+        <div><strong>05</strong><small>Failed attempts</small></div>
+        <div><strong>24h</strong><small>IP block duration</small></div>
+        <div><strong>12+</strong><small>Hashing rounds</small></div>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <aside class="side-card">
+        <div class="shield">✓</div>
+        <h2>Security overview</h2>
+        <p>Your IP address is detected by the server. It cannot be edited from this page.</p>
+        <div class="ip-box">
+          <span>DETECTED IP ADDRESS</span>
+          <strong id="detectedIp">Checking…</strong>
+        </div>
+        <div class="rule-list">
+          <div><b class="check">✓</b><span>Passwords stored as bcrypt hashes</span></div>
+          <div><b class="check">✓</b><span>Server-side login sessions</span></div>
+          <div><b class="check">✓</b><span>Automatic 24-hour IP lockout</span></div>
+          <div><b class="check">✓</b><span>SQLite persistent database</span></div>
+        </div>
+        <div class="attempt-panel">
+          <div class="attempt-heading"><span>Failed attempts</span><b id="attemptCount">0 / 5</b></div>
+          <div class="progress"><span id="attemptBar"></span></div>
+          <small id="attemptHint">Your IP is currently clear.</small>
+        </div>
+      </aside>
+
+      <section class="main-card">
+        <div id="authView">
+          <div class="tabs">
+            <button class="tab active" id="loginTab" type="button">Sign in</button>
+            <button class="tab" id="registerTab" type="button">Create account</button>
+          </div>
+          <div class="form-wrap">
+            <div class="form-heading">
+              <span class="form-kicker" id="formKicker">WELCOME BACK</span>
+              <h2 id="formTitle">Sign in to your account</h2>
+              <p id="formSubtitle">Enter your credentials to continue securely.</p>
+            </div>
+            <form id="authForm">
+              <label for="username">User ID</label>
+              <input id="username" name="username" autocomplete="username" placeholder="Enter your user ID" required minlength="3" maxlength="30">
+              <label for="password">Password</label>
+              <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+              <p class="password-hint hidden" id="passwordHint">Use at least 8 characters.</p>
+              <button class="primary-btn" id="submitBtn" type="submit">Sign in securely <span>→</span></button>
+            </form>
+            <div id="notice" class="notice hidden" role="status"></div>
+            <p class="privacy-note"><span>▣</span> Your credentials are sent securely to the application server.</p>
+          </div>
+        </div>
+
+        <div id="dashboardView" class="hidden">
+          <div class="dashboard-head">
+            <div><span class="form-kicker">AUTHENTICATED SESSION</span><h2 id="welcomeTitle">Your dashboard</h2><p>You are signed in to SecureGate.</p></div>
+            <span class="status-pill"><i></i> Active</span>
+          </div>
+          <div class="user-summary">
+            <div class="avatar" id="avatar">U</div>
+            <div><small>SIGNED IN AS</small><strong id="dashUsername">User</strong><span id="dashRole">Standard user</span></div>
+          </div>
+          <div class="info-grid">
+            <div class="info-tile"><small>DETECTED IP</small><strong id="dashIp">—</strong></div>
+            <div class="info-tile"><small>ACCOUNT ROLE</small><strong id="dashRoleTile">User</strong></div>
+            <div class="info-tile"><small>LOGIN STATUS</small><strong class="green-text">Authenticated</strong></div>
+            <div class="info-tile"><small>PROTECTION</small><strong class="green-text">Enabled</strong></div>
+          </div>
+          <section id="adminPanel" class="admin-panel hidden">
+            <div class="section-heading"><div><span class="form-kicker">ADMINISTRATION</span><h3>Security overview</h3></div><button id="refreshAdmin" class="small-btn" type="button">Refresh</button></div>
+            <div class="admin-columns">
+              <div><h4>Registered users</h4><div id="userList" class="data-list"></div></div>
+              <div><h4>Currently blocked IPs</h4><div id="blockedList" class="data-list"></div></div>
+            </div>
+          </section>
+          <div class="dashboard-actions">
+            <button id="securityBtn" class="secondary-btn" type="button">Security information</button>
+            <button id="logoutBtn" class="primary-btn" type="button">Sign out <span>→</span></button>
+          </div>
+          <div id="securityDetails" class="security-details hidden"></div>
+          <div id="dashNotice" class="notice hidden" role="status"></div>
+        </div>
+      </section>
+    </section>
+    <footer>SecureGate · Brute Force IP Protection System <span>Educational project</span></footer>
+  </main>
 </body>
 </html>
