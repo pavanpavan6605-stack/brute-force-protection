@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Brute Force Attack Protection System">
+  <title>Brute Force IP Protection</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/"><span class="brand-icon">盾</span><span>SecureGate</span></a>
+    <span class="top-label">BRUTE FORCE PROTECTION</span>
+    <span id="connection" class="connection"><i></i> Server connected</span>
+  </header>
+
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow"><span class="pulse"></span> REAL-TIME LOGIN SECURITY</div>
+      <h1>Protect your account.<br><span>Stop brute-force attacks.</span></h1>
+      <p>A server-backed login protection system with password hashing, session authentication and automatic IP blocking.</p>
+      <div class="hero-stats">
+        <div><strong>05</strong><small>Failed attempts</small></div>
+        <div><strong>24h</strong><small>IP block duration</small></div>
+        <div><strong>12+</strong><small>Hashing rounds</small></div>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <aside class="side-card">
+        <div class="shield">✓</div>
+        <h2>Security overview</h2>
+        <p>Your IP address is detected by the server. It cannot be edited from this page.</p>
+        <div class="ip-box">
+          <span>DETECTED IP ADDRESS</span>
+          <strong id="detectedIp">Checking…</strong>
+        </div>
+        <div class="rule-list">
+          <div><b class="check">✓</b><span>Passwords stored as bcrypt hashes</span></div>
+          <div><b class="check">✓</b><span>Server-side login sessions</span></div>
+          <div><b class="check">✓</b><span>Automatic 24-hour IP lockout</span></div>
+          <div><b class="check">✓</b><span>SQLite persistent database</span></div>
+        </div>
+        <div class="attempt-panel">
+          <div class="attempt-heading"><span>Failed attempts</span><b id="attemptCount">0 / 5</b></div>
+          <div class="progress"><span id="attemptBar"></span></div>
+          <small id="attemptHint">Your IP is currently clear.</small>
+        </div>
+      </aside>
+
+      <section class="main-card">
+        <div id="authView">
+          <div class="tabs">
+            <button class="tab active" id="loginTab" type="button">Sign in</button>
+            <button class="tab" id="registerTab" type="button">Create account</button>
+          </div>
+          <div class="form-wrap">
+            <div class="form-heading">
+              <span class="form-kicker" id="formKicker">WELCOME BACK</span>
+              <h2 id="formTitle">Sign in to your account</h2>
+              <p id="formSubtitle">Enter your credentials to continue securely.</p>
+            </div>
+            <form id="authForm">
+              <label for="username">User ID</label>
+              <input id="username" name="username" autocomplete="username" placeholder="Enter your user ID" required minlength="3" maxlength="30">
+              <label for="password">Password</label>
+              <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+              <p class="password-hint hidden" id="passwordHint">Use at least 8 characters.</p>
+              <button class="primary-btn" id="submitBtn" type="submit">Sign in securely <span>→</span></button>
+            </form>
+            <div id="notice" class="notice hidden" role="status"></div>
+            <p class="privacy-note"><span>▣</span> Your credentials are sent securely to the application server.</p>
+          </div>
+        </div>
+
+        <div id="dashboardView" class="hidden">
+          <div class="dashboard-head">
+            <div><span class="form-kicker">AUTHENTICATED SESSION</span><h2 id="welcomeTitle">Your dashboard</h2><p>You are signed in to SecureGate.</p></div>
+            <span class="status-pill"><i></i> Active</span>
+          </div>
+          <div class="user-summary">
+            <div class="avatar" id="avatar">U</div>
+            <div><small>SIGNED IN AS</small><strong id="dashUsername">User</strong><span id="dashRole">Standard user</span></div>
+          </div>
+          <div class="info-grid">
+            <div class="info-tile"><small>DETECTED IP</small><strong id="dashIp">—</strong></div>
+            <div class="info-tile"><small>ACCOUNT ROLE</small><strong id="dashRoleTile">User</strong></div>
+            <div class="info-tile"><small>LOGIN STATUS</small><strong class="green-text">Authenticated</strong></div>
+            <div class="info-tile"><small>PROTECTION</small><strong class="green-text">Enabled</strong></div>
+          </div>
+          <section id="adminPanel" class="admin-panel hidden">
+            <div class="section-heading"><div><span class="form-kicker">ADMINISTRATION</span><h3>Security overview</h3></div><button id="refreshAdmin" class="small-btn" type="button">Refresh</button></div>
+            <div class="admin-columns">
+              <div><h4>Registered users</h4><div id="userList" class="data-list"></div></div>
+              <div><h4>Currently blocked IPs</h4><div id="blockedList" class="data-list"></div></div>
+            </div>
+          </section>
+          <div class="dashboard-actions">
+            <button id="securityBtn" class="secondary-btn" type="button">Security information</button>
+            <button id="logoutBtn" class="primary-btn" type="button">Sign out <span>→</span></button>
+          </div>
+          <div id="securityDetails" class="security-details hidden"></div>
+          <div id="dashNotice" class="notice hidden" role="status"></div>
+        </div>
+      </section>
+    </section>
+    <footer>SecureGate · Brute Force IP Protection System <span>Educational project</span></footer>
+  </main>
+</body>
+</html>
